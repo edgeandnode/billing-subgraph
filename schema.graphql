@@ -1,0 +1,92 @@
+"""
+Billing holds global variables
+"""
+type Billing @entity {
+  "Set to 1"
+  id: ID!
+  "Address of the gateway"
+  gateway: Bytes!
+  "Address of the governor"
+  governor: Bytes!
+}
+
+"""
+Curator Name Signal for a single Subgraph
+"""
+type User @entity {
+  "Polygon address"
+  id: ID!
+  "Balance of the user in the Billing contract"
+  billingBalance: BigInt!
+  "Total polygonGRT balance"
+  polygonGRTBalance: BigInt!
+  "All transactions of this user"
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+}
+
+"""
+A generic transaction
+"""
+interface Transaction {
+  "Transaction hash concatenated with event log index"
+  id: ID!
+  "Transaction hash"
+  hash: Bytes!
+  "Block number for the transaction"
+  blockNumber: Int!
+  "Timestamp for the transaction"
+  timestamp: Int!
+  "User of the transaction"
+  user: User!
+  "Amount of tokens used in the transaction"
+  amount: BigInt!
+  "Type of Graph Network transaction"
+  type: TransactionType!
+}
+
+"""
+TokensAdded Transaction
+"""
+type TokensAdded implements Transaction @entity {
+  id: ID!
+  hash: Bytes!
+  blockNumber: Int!
+  timestamp: Int!
+  user: User!
+  amount: BigInt!
+  type: TransactionType!
+}
+
+"""
+TokensRemoved Transaction
+"""
+type TokensRemoved implements Transaction @entity {
+  id: ID!
+  hash: Bytes!
+  blockNumber: Int!
+  timestamp: Int!
+  user: User!
+  amount: BigInt!
+  type: TransactionType!
+  "User that the tokens are withdrawn to"
+  to: Bytes!
+}
+
+"""
+TokensPulled Transaction. Where the gateway pulls tokens from the user
+"""
+type TokensPulled implements Transaction @entity {
+  id: ID!
+  hash: Bytes!
+  blockNumber: Int!
+  timestamp: Int!
+  user: User!
+  amount: BigInt!
+  type: TransactionType!
+}
+
+enum TransactionType {
+  TokensAdded
+  TokensRemoved
+  TokensPulled
+}
