@@ -57,6 +57,7 @@ type TokensAdded implements Transaction @entity {
   type: TransactionType!
 }
 
+
 """
 TokensRemoved Transaction
 """

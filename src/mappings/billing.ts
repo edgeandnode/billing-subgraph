@@ -1,4 +1,4 @@
-import { Billing, User, TokensAdded, TokensRemoved, TokensPulled } from '../types/schema'
+import { Billing, TokensAdded, TokensRemoved, TokensPulled } from '../types/schema'
 import {
   TokensAdded as AddedEvent,
   TokensRemoved as RemovedEvent,
@@ -7,7 +7,7 @@ import {
   NewOwnership,
   Billing as BillingContract,
 } from '../types/Billing/Billing'
-import { BigInt, Address } from '@graphprotocol/graph-ts'
+import { createOrLoadUser } from './helpers'
 
 /**
  * @dev handleEpochRun - Sets the gateway on the Billing Entity. Creates entity on first try
@@ -93,16 +93,3 @@ export function handleTokensPulled(event: PulledEvent): void {
   tx.save()
 }
 
-/**
- * @dev Helper function to load or create a User
- */
-function createOrLoadUser(userAddress: Address): User {
-  let id = userAddress.toHexString()
-  let user = User.load(id)
-  if (user == null) {
-    user = new User(id)
-    user.billingBalance = BigInt.fromI32(0)
-    user.polygonGRTBalance = BigInt.fromI32(0)
-  }
-  return user as User
-}

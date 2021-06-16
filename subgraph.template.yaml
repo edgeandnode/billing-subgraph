@@ -10,7 +10,7 @@ dataSources:
     source:
       address: "{{addressBilling}}"
       abi: Billing
-      startBlock: {{blockNumber}}
+      startBlock: {{blockNumberBilling}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -36,3 +36,25 @@ dataSources:
           handler: handleTokensRemoved
         - event: TokensPulled(indexed address,uint256)
           handler: handleTokensPulled
+  - kind: ethereum/contract
+    name: GraphToken
+    network: matic
+    source:
+      address: "{{addressGRT}}"
+      abi: GraphToken
+      startBlock: {{blockNumberGRT}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/graphToken.ts
+      entities:
+        - User
+      abis:
+        - name: GraphToken
+          file: ./abis/GraphToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
