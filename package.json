@@ -16,14 +16,15 @@
     "prepare:mainnet": "mustache ./config/mainnet.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
     "deploy-testnet": " npm run prepare:testnet && graph deploy davekaj/billing --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-mainnet": " npm run prepare:mainnet && graph deploy graphprotocol/billing --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testing": " npm run prepare:mainnet && graph deploy <SUBGRAPH-NAME> --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "lint": "yarn eslint .",
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
     "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.20.1",
-    "@graphprotocol/graph-ts": "^0.20.0",
+    "@graphprotocol/graph-cli": "^0.29.0",
+    "@graphprotocol/graph-ts": "^0.26.0",
     "@types/node": "^15.12.2",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
