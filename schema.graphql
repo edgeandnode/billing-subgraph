@@ -136,7 +136,7 @@ type UserDailyData @entity {
   "Number of the day this entity represents. Day 0 is the network launch day."
   dayNumber: Int!
   "Original entity that the daily data entity tracks"
-  entity: Billing!
+  entity: User!
   "[CUMULATIVE] Total amount of tokens added"
   totalTokensAdded: BigInt!
   "[CUMULATIVE] Total amount of tokens pulled"
