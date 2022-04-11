@@ -16,6 +16,8 @@ type Billing @entity {
   totalTokensRemoved: BigInt!
   "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
   totalCurrentBalance: BigInt!
+  "Latest BillingDailyData entity created"
+  latestDailyDataEntity: BillingDailyData
 }
 
 """
@@ -34,6 +36,8 @@ type User @entity {
   totalTokensRemoved: BigInt!
   "All transactions of this user"
   transactions: [Transaction!]! @derivedFrom(field: "user")
+  "Latest UserDailyData entity created for this user"
+  latestDailyDataEntity: UserDailyData
 }
 
 """
@@ -124,6 +128,18 @@ type BillingDailyData @entity {
   totalTokensRemoved: BigInt!
   "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
   totalCurrentBalance: BigInt!
+  "Address of the gateway"
+  gateway: Bytes!
+  "Address of the governor"
+  governor: Bytes!
+  "[DELTA] Chage in total tokens added since the last DailyData point"
+  totalTokensAddedDelta: BigInt!
+  "[DELTA] Chage in total tokens pulled since the last DailyData point"
+  totalTokensPulledDelta: BigInt!
+  "[DELTA] Chage in total tokens removed/withdrawn since the last DailyData point"
+  totalTokensRemovedDelta: BigInt!
+  "[DELTA] Chage in total currently available balance since the last DailyData point"
+  totalCurrentBalanceDelta: BigInt!
 }
 
 type UserDailyData @entity {
@@ -145,4 +161,12 @@ type UserDailyData @entity {
   totalTokensRemoved: BigInt!
   "[CURRENT] Amount of currently available balance"
   billingBalance: BigInt!
+  "[DELTA] Chage in total tokens added since the last DailyData point"
+  totalTokensAddedDelta: BigInt!
+  "[DELTA] Chage in total tokens pulled since the last DailyData point"
+  totalTokensPulledDelta: BigInt!
+  "[DELTA] Chage in total tokens removed/withdrawn since the last DailyData point"
+  totalTokensRemovedDelta: BigInt!
+  "[DELTA] Chage in total currently available balance since the last DailyData point"
+  billingBalanceDelta: BigInt!
 }

@@ -20,6 +20,9 @@ import {
 export function handleGatewayUpdated(event: GatewayUpdated): void {
   let billing = getBilling(event.address)
   billing.gateway = event.params.newGateway
+
+  getAndUpdateBillingDailyData(billing, event.block.timestamp)
+
   billing.save()
 }
 
@@ -29,6 +32,9 @@ export function handleGatewayUpdated(event: GatewayUpdated): void {
 export function handleNewOwnership(event: NewOwnership): void {
   let billing = getBilling(event.address)
   billing.governor = event.params.to
+
+  getAndUpdateBillingDailyData(billing, event.block.timestamp)
+
   billing.save()
 }
 
@@ -45,11 +51,11 @@ export function handleTokensAdded(event: AddedEvent): void {
   billing.totalCurrentBalance = billing.totalCurrentBalance.plus(event.params.amount)
   billing.totalTokensAdded = billing.totalTokensAdded.plus(event.params.amount)
 
-  user.save()
-  billing.save()
-
   getAndUpdateUserDailyData(user, event.block.timestamp)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
+
+  user.save()
+  billing.save()
 
   let tx = new TokensAdded(
     event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
@@ -76,11 +82,11 @@ export function handleTokensRemoved(event: RemovedEvent): void {
   billing.totalCurrentBalance = billing.totalCurrentBalance.minus(event.params.amount)
   billing.totalTokensRemoved = billing.totalTokensRemoved.plus(event.params.amount)
 
-  user.save()
-  billing.save()
-
   getAndUpdateUserDailyData(user, event.block.timestamp)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
+
+  user.save()
+  billing.save()
 
   let tx = new TokensRemoved(
     event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
@@ -108,11 +114,11 @@ export function handleTokensPulled(event: PulledEvent): void {
   billing.totalCurrentBalance = billing.totalCurrentBalance.minus(event.params.amount)
   billing.totalTokensPulled = billing.totalTokensPulled.plus(event.params.amount)
 
-  user.save()
-  billing.save()
-
   getAndUpdateUserDailyData(user, event.block.timestamp)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
+
+  user.save()
+  billing.save()
 
   let tx = new TokensPulled(
     event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
