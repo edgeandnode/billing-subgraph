@@ -8,6 +8,16 @@ type Billing @entity {
   gateway: Bytes!
   "Address of the governor"
   governor: Bytes!
+  "[CUMULATIVE] Total amount of tokens added"
+  totalTokensAdded: BigInt!
+  "[CUMULATIVE] Total amount of tokens pulled"
+  totalTokensPulled: BigInt!
+  "[CUMULATIVE] Total amount of tokens removed/withdrawn"
+  totalTokensRemoved: BigInt!
+  "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
+  totalCurrentBalance: BigInt!
+  "Latest BillingDailyData entity created"
+  latestDailyDataEntity: BillingDailyData
 }
 
 """
@@ -18,10 +28,16 @@ type User @entity {
   id: ID!
   "Balance of the user in the Billing contract"
   billingBalance: BigInt!
-  "Total polygonGRT balance"
-  polygonGRTBalance: BigInt!
+  "[CUMULATIVE] Total amount of tokens added"
+  totalTokensAdded: BigInt!
+  "[CUMULATIVE] Total amount of tokens pulled"
+  totalTokensPulled: BigInt!
+  "[CUMULATIVE] Total amount of tokens removed/withdrawn"
+  totalTokensRemoved: BigInt!
   "All transactions of this user"
   transactions: [Transaction!]! @derivedFrom(field: "user")
+  "Latest UserDailyData entity created for this user"
+  latestDailyDataEntity: UserDailyData
 }
 
 """
@@ -89,4 +105,68 @@ enum TransactionType {
   TokensAdded
   TokensRemoved
   TokensPulled
+}
+
+# Daily data entities
+
+type BillingDailyData @entity {
+  "<SUBGRAPH ID>-<DAY NUMBER>"
+  id: ID!
+  "Timestamp for the start of the day that this entity represents. UTC+0"
+  dayStart: BigInt!
+  "Timestamp for the end of the day that this entity represents. UTC+0"
+  dayEnd: BigInt!
+  "Number of the day this entity represents. Day 0 is the network launch day."
+  dayNumber: Int!
+  "Original entity that the daily data entity tracks"
+  entity: Billing!
+  "[CUMULATIVE] Total amount of tokens added"
+  totalTokensAdded: BigInt!
+  "[CUMULATIVE] Total amount of tokens pulled"
+  totalTokensPulled: BigInt!
+  "[CUMULATIVE] Total amount of tokens removed/withdrawn"
+  totalTokensRemoved: BigInt!
+  "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
+  totalCurrentBalance: BigInt!
+  "Address of the gateway"
+  gateway: Bytes!
+  "Address of the governor"
+  governor: Bytes!
+  "[DELTA] Chage in total tokens added since the last DailyData point"
+  totalTokensAddedDelta: BigInt!
+  "[DELTA] Chage in total tokens pulled since the last DailyData point"
+  totalTokensPulledDelta: BigInt!
+  "[DELTA] Chage in total tokens removed/withdrawn since the last DailyData point"
+  totalTokensRemovedDelta: BigInt!
+  "[DELTA] Chage in total currently available balance since the last DailyData point"
+  totalCurrentBalanceDelta: BigInt!
+}
+
+type UserDailyData @entity {
+  "<SUBGRAPH ID>-<DAY NUMBER>"
+  id: ID!
+  "Timestamp for the start of the day that this entity represents. UTC+0"
+  dayStart: BigInt!
+  "Timestamp for the end of the day that this entity represents. UTC+0"
+  dayEnd: BigInt!
+  "Number of the day this entity represents. Day 0 is the network launch day."
+  dayNumber: Int!
+  "Original entity that the daily data entity tracks"
+  entity: User!
+  "[CUMULATIVE] Total amount of tokens added"
+  totalTokensAdded: BigInt!
+  "[CUMULATIVE] Total amount of tokens pulled"
+  totalTokensPulled: BigInt!
+  "[CUMULATIVE] Total amount of tokens removed/withdrawn"
+  totalTokensRemoved: BigInt!
+  "[CURRENT] Amount of currently available balance"
+  billingBalance: BigInt!
+  "[DELTA] Chage in total tokens added since the last DailyData point"
+  totalTokensAddedDelta: BigInt!
+  "[DELTA] Chage in total tokens pulled since the last DailyData point"
+  totalTokensPulledDelta: BigInt!
+  "[DELTA] Chage in total tokens removed/withdrawn since the last DailyData point"
+  totalTokensRemovedDelta: BigInt!
+  "[DELTA] Chage in total currently available balance since the last DailyData point"
+  billingBalanceDelta: BigInt!
 }
