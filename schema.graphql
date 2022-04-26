@@ -38,6 +38,9 @@ type User @entity {
   transactions: [Transaction!]! @derivedFrom(field: "user")
   "Latest UserDailyData entity created for this user"
   latestDailyDataEntity: UserDailyData
+
+  "[DEPRECATED] Total polygonGRT balance"
+  polygonGRTBalance: BigInt!
 }
 
 """
