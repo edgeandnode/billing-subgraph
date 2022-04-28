@@ -37,8 +37,6 @@ export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt)
   let id = compoundId(entity.id, BigInt.fromI32(dayNumber).toString())
   let dailyData = BillingDailyData.load(id)
 
-  let previousDailyDataPointID: String | null = entity.latestDailyDataEntity
-
   if (dailyData == null) {
     dailyData = new BillingDailyData(id)
 
@@ -47,7 +45,10 @@ export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt)
     dailyData.dayNumber = dayNumber
     dailyData.entity = entity.id
 
-    entity.latestDailyDataEntity = dailyData.id
+    if (entity.currentDailyDataEntity != null) {
+      entity.previousDailyDataEntity = entity.currentDailyDataEntity
+    }
+    entity.currentDailyDataEntity = dailyData.id
   }
 
   dailyData.totalTokensAdded = entity.totalTokensAdded
@@ -57,8 +58,8 @@ export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt)
   dailyData.gateway = entity.gateway
   dailyData.governor = entity.governor
 
-  if (previousDailyDataPointID != null) {
-    let previousDailyDataPoint = BillingDailyData.load(previousDailyDataPointID!)!
+  if (entity.previousDailyDataEntity != null) {
+    let previousDailyDataPoint = BillingDailyData.load(entity.previousDailyDataEntity!)!
 
     dailyData.totalTokensAddedDelta = entity.totalTokensAdded.minus(
       previousDailyDataPoint.totalTokensAdded,
@@ -89,8 +90,6 @@ export function getAndUpdateUserDailyData(entity: User, timestamp: BigInt): User
   let id = compoundId(entity.id, BigInt.fromI32(dayNumber).toString())
   let dailyData = UserDailyData.load(id)
 
-  let previousDailyDataPointID: String | null = entity.latestDailyDataEntity
-
   if (dailyData == null) {
     dailyData = new UserDailyData(id)
 
@@ -99,7 +98,10 @@ export function getAndUpdateUserDailyData(entity: User, timestamp: BigInt): User
     dailyData.dayNumber = dayNumber
     dailyData.entity = entity.id
 
-    entity.latestDailyDataEntity = dailyData.id
+    if (entity.currentDailyDataEntity != null) {
+      entity.previousDailyDataEntity = entity.currentDailyDataEntity
+    }
+    entity.currentDailyDataEntity = dailyData.id
   }
 
   dailyData.totalTokensAdded = entity.totalTokensAdded
@@ -107,8 +109,8 @@ export function getAndUpdateUserDailyData(entity: User, timestamp: BigInt): User
   dailyData.totalTokensRemoved = entity.totalTokensRemoved
   dailyData.billingBalance = entity.billingBalance
 
-  if (previousDailyDataPointID != null) {
-    let previousDailyDataPoint = UserDailyData.load(previousDailyDataPointID!)!
+  if (entity.previousDailyDataEntity != null) {
+    let previousDailyDataPoint = UserDailyData.load(entity.previousDailyDataEntity!)!
 
     dailyData.totalTokensAddedDelta = entity.totalTokensAdded.minus(
       previousDailyDataPoint.totalTokensAdded,
