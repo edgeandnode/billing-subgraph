@@ -16,8 +16,10 @@ type Billing @entity {
   totalTokensRemoved: BigInt!
   "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
   totalCurrentBalance: BigInt!
-  "Latest BillingDailyData entity created"
-  latestDailyDataEntity: BillingDailyData
+  "Current BillingDailyData entity created"
+  currentDailyDataEntity: BillingDailyData
+  "Previous BillingDailyData entity created"
+  previousDailyDataEntity: BillingDailyData
 }
 
 """
@@ -36,8 +38,10 @@ type User @entity {
   totalTokensRemoved: BigInt!
   "All transactions of this user"
   transactions: [Transaction!]! @derivedFrom(field: "user")
-  "Latest UserDailyData entity created for this user"
-  latestDailyDataEntity: UserDailyData
+  "Current UserDailyData entity created"
+  currentDailyDataEntity: UserDailyData
+  "Previous UserDailyData entity created"
+  previousDailyDataEntity: UserDailyData
 
   "[DEPRECATED] Total polygonGRT balance"
   polygonGRTBalance: BigInt!
