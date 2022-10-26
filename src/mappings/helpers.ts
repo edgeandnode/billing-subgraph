@@ -55,7 +55,7 @@ export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt)
   dailyData.totalTokensPulled = entity.totalTokensPulled
   dailyData.totalTokensRemoved = entity.totalTokensRemoved
   dailyData.totalCurrentBalance = entity.totalCurrentBalance
-  dailyData.gateway = entity.gateway
+  dailyData.collectors = entity.collectors
   dailyData.governor = entity.governor
 
   if (entity.previousDailyDataEntity != null) {

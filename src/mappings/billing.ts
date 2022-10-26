@@ -1,12 +1,13 @@
-import { Billing, User, TokensAdded, TokensRemoved, TokensPulled } from '../types/schema'
+import { TokensAdded, TokensRemoved, TokensPulled, InsufficientBalanceForRemoval } from '../types/schema'
 import {
   TokensAdded as AddedEvent,
   TokensRemoved as RemovedEvent,
   TokensPulled as PulledEvent,
-  GatewayUpdated,
+  InsufficientBalanceForRemoval as InsufficientBalanceForRemovalEvent,
+  CollectorUpdated,
   NewOwnership,
 } from '../types/Billing/Billing'
-import { BigInt, Address } from '@graphprotocol/graph-ts'
+
 import {
   getBilling,
   createOrLoadUser,
@@ -15,14 +16,20 @@ import {
 } from './helpers'
 
 /**
- * @dev handleEpochRun - Sets the gateway on the Billing Entity. Creates entity on first try
+ * @dev handleEpochRun - Sets the gateways ("collectors") on the Billing Entity. Creates entity on first try
  */
-export function handleGatewayUpdated(event: GatewayUpdated): void {
+export function handleCollectorUpdated(event: CollectorUpdated): void {
   let billing = getBilling(event.address)
-  billing.gateway = event.params.newGateway
+  const existingCollectorIndex = billing.collectors.indexOf(event.params.collector)
+  if (existingCollectorIndex > -1) {
+    if (!event.params.enabled) {
+      billing.collectors.splice(existingCollectorIndex, 1)
+    }
+  } else if (event.params.enabled) {
+    billing.collectors.push(event.params.collector)
+  }
 
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
-
   billing.save()
 }
 
@@ -74,7 +81,7 @@ export function handleTokensAdded(event: AddedEvent): void {
  */
 export function handleTokensRemoved(event: RemovedEvent): void {
   let billing = getBilling(event.address)
-  let user = createOrLoadUser(event.params.user)
+  let user = createOrLoadUser(event.params.from)
 
   user.billingBalance = user.billingBalance.minus(event.params.amount)
   user.totalTokensRemoved = user.totalTokensRemoved.plus(event.params.amount)
@@ -94,11 +101,28 @@ export function handleTokensRemoved(event: RemovedEvent): void {
   tx.hash = event.transaction.hash
   tx.blockNumber = event.block.number.toI32()
   tx.timestamp = event.block.timestamp.toI32()
-  tx.user = event.params.user.toHexString()
+  tx.user = event.params.from.toHexString()
   tx.amount = event.params.amount
   tx.type = 'TokensRemoved'
   tx.to = event.params.to
   tx.save()
+}
+
+/**
+ * @dev Handle the Tokens Removed event
+ */
+ export function handleInsufficientBalanceForRemoval(event: InsufficientBalanceForRemovalEvent): void {
+
+  let ev = new InsufficientBalanceForRemoval(
+    event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
+  )
+  ev.hash = event.transaction.hash
+  ev.blockNumber = event.block.number.toI32()
+  ev.timestamp = event.block.timestamp.toI32()
+  ev.user = event.params.from.toHexString()
+  ev.amount = event.params.amount
+  ev.to = event.params.to
+  ev.save()
 }
 
 /**

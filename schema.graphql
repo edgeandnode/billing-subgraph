@@ -4,8 +4,8 @@ Billing holds global variables
 type Billing @entity {
   "Set to 1"
   id: ID!
-  "Address of the gateway"
-  gateway: Bytes!
+  "Address of the collectors"
+  collectors: [Bytes!]!
   "Address of the governor"
   governor: Bytes!
   "[CUMULATIVE] Total amount of tokens added"
@@ -96,7 +96,7 @@ type TokensRemoved implements Transaction @entity {
 }
 
 """
-TokensPulled Transaction. Where the gateway pulls tokens from the user
+TokensPulled Transaction. Where a collector pulls tokens from the user
 """
 type TokensPulled implements Transaction @entity {
   id: ID!
@@ -112,6 +112,20 @@ enum TransactionType {
   TokensAdded
   TokensRemoved
   TokensPulled
+}
+
+"""
+InsufficientBalanceForRemoval event, where a user tried to remove funds from L1 but the balance was insufficient
+"""
+type InsufficientBalanceForRemoval @entity {
+  id: ID!
+  hash: Bytes!
+  blockNumber: Int!
+  timestamp: Int!
+  user: User!
+  amount: BigInt!
+  "User that the tokens are tried to be withdrawn to"
+  to: Bytes!
 }
 
 # Daily data entities
@@ -135,8 +149,8 @@ type BillingDailyData @entity {
   totalTokensRemoved: BigInt!
   "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
   totalCurrentBalance: BigInt!
-  "Address of the gateway"
-  gateway: Bytes!
+  "Address of the collectors"
+  collectors: [Bytes!]!
   "Address of the governor"
   governor: Bytes!
   "[DELTA] Chage in total tokens added since the last DailyData point"
