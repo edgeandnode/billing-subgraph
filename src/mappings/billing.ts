@@ -14,6 +14,7 @@ import {
   createOrLoadUser,
   getAndUpdateBillingDailyData,
   getAndUpdateUserDailyData,
+  DEFAULT_BILLING_ID,
 } from './helpers'
 
 /**
@@ -23,12 +24,12 @@ export function handleCollectorUpdated(event: CollectorUpdated): void {
   let collector = Collector.load(event.params.collector.toHexString())
   if (collector == null && event.params.enabled) {
     collector = new Collector(event.params.collector.toHexString())
-    collector.billing = '1'
+    collector.billing = DEFAULT_BILLING_ID
     collector.save()
   } else if (collector != null && !event.params.enabled) {
     store.remove('Collector', collector.id)
   }
-  let billing = getBilling(event.address)
+  const billing = getBilling(event.address)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
   billing.save()
 }

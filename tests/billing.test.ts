@@ -35,11 +35,11 @@ function assertEqualCollectorArrays(actualArray: Array<String>, expectedArray: A
  */
 test('Collector update', () => {
   let billing = createEmptyBilling()
-  let oldCollectorAddressString = '0x1111111111111111111111111111111111111112'
+  const oldCollectorAddressString = '0x1111111111111111111111111111111111111112'
   
   assertEqualCollectorArrays(billing.collectors, [oldCollectorAddressString])
 
-  let newCollectorAddressString = '0x0101010101010101010101010101010101010101'
+  const newCollectorAddressString = '0x0101010101010101010101010101010101010101'
   let collectorUpdatedEvent = createCollectorUpdated(newCollectorAddressString, true)
 
   handleCollectorUpdated(collectorUpdatedEvent)
@@ -202,16 +202,16 @@ test('Fully remove tokens', () => {
  */
 test('Reporting insufficient balance for removal', () => {
   createEmptyBilling()
-  let userAddress = '0x0101010101010101010101010101010101010101'
-  let toAddress = '0x0101010101010101010101010101010101010102'
-  let grtAmountString = '10000000000000000000'
-  let grtAmount = BigInt.fromString(grtAmountString)
+  const userAddress = '0x0101010101010101010101010101010101010101'
+  const toAddress = '0x0101010101010101010101010101010101010102'
+  const grtAmountString = '10000000000000000000'
+  const grtAmount = BigInt.fromString(grtAmountString)
 
-  let insufficientBalanceEvent = createInsufficientBalanceEvent(userAddress, toAddress, grtAmount)
+  const insufficientBalanceEvent = createInsufficientBalanceEvent(userAddress, toAddress, grtAmount)
 
   handleInsufficientBalanceForRemoval(insufficientBalanceEvent)
 
-  let id = insufficientBalanceEvent.transaction.hash.toHexString().concat(insufficientBalanceEvent.transactionLogIndex.toString())
+  const id = insufficientBalanceEvent.transaction.hash.toHexString().concat(insufficientBalanceEvent.transactionLogIndex.toString())
   assert.fieldEquals('InsufficientBalanceForRemoval', id, 'user', userAddress)
   assert.fieldEquals('InsufficientBalanceForRemoval', id, 'to', toAddress)
   assert.fieldEquals('InsufficientBalanceForRemoval', id, 'amount', grtAmountString)

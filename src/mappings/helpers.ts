@@ -4,14 +4,14 @@ import { BigInt, Address } from '@graphprotocol/graph-ts'
 
 export const LAUNCH_DAY = 18613 // 1608163200 / 86400. 1608163200 = 17 Dec 2020 00:00:00 GMT
 export const SECONDS_PER_DAY = 86400
-
+export const DEFAULT_BILLING_ID = '1'
 /**
  * @dev Helper function to load Billing
  */
 export function getBilling(eventAddress: Address): Billing {
-  let billing = Billing.load('1')
+  let billing = Billing.load(DEFAULT_BILLING_ID)
   if (billing == null) {
-    billing = new Billing('1')
+    billing = new Billing(DEFAULT_BILLING_ID)
     let contract = BillingContract.bind(eventAddress)
     billing.governor = contract.governor()
     billing.collectors = []
