@@ -109,7 +109,9 @@ export function handleTokensRemoved(event: RemovedEvent): void {
 }
 
 /**
- * @dev Handle the Tokens Removed event
+ * @dev Handle the Insufficient Balance for Removal event
+ * This doesn't affect a user's transactions but we surface it
+ * in case it becomes useful to show it in the UI.
  */
  export function handleInsufficientBalanceForRemoval(event: InsufficientBalanceForRemovalEvent): void {
 
