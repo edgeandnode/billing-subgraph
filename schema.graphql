@@ -5,7 +5,7 @@ type Billing @entity {
   "Set to 1"
   id: ID!
   "Address of the collectors"
-  collectors: [Bytes!]!
+  collectors: [Collector!]! @derivedFrom(field: "billing")
   "Address of the governor"
   governor: Bytes!
   "[CUMULATIVE] Total amount of tokens added"
@@ -26,7 +26,7 @@ type Billing @entity {
 Curator Name Signal for a single Subgraph
 """
 type User @entity {
-  "Polygon address"
+  "EVM address"
   id: ID!
   "Balance of the user in the Billing contract"
   billingBalance: BigInt!
@@ -45,6 +45,16 @@ type User @entity {
 
   "[DEPRECATED] Total polygonGRT balance"
   polygonGRTBalance: BigInt!
+}
+
+"""
+A collector authorized to pull tokens
+"""
+type Collector @entity {
+  "EVM address"
+  id: ID!
+  "Billing contract"
+  billing: Billing!
 }
 
 """
@@ -150,7 +160,7 @@ type BillingDailyData @entity {
   "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
   totalCurrentBalance: BigInt!
   "Address of the collectors"
-  collectors: [Bytes!]!
+  collectors: [Collector!]!
   "Address of the governor"
   governor: Bytes!
   "[DELTA] Chage in total tokens added since the last DailyData point"

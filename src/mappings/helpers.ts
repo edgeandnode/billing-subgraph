@@ -14,6 +14,7 @@ export function getBilling(eventAddress: Address): Billing {
     billing = new Billing('1')
     let contract = BillingContract.bind(eventAddress)
     billing.governor = contract.governor()
+    billing.collectors = []
     billing.save()
   }
 

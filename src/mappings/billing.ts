@@ -1,4 +1,5 @@
-import { TokensAdded, TokensRemoved, TokensPulled, InsufficientBalanceForRemoval } from '../types/schema'
+import { TokensAdded, TokensRemoved, TokensPulled, InsufficientBalanceForRemoval, Collector } from '../types/schema'
+import { store } from '@graphprotocol/graph-ts'
 import {
   TokensAdded as AddedEvent,
   TokensRemoved as RemovedEvent,
@@ -19,16 +20,15 @@ import {
  * @dev handleEpochRun - Sets the gateways ("collectors") on the Billing Entity. Creates entity on first try
  */
 export function handleCollectorUpdated(event: CollectorUpdated): void {
-  let billing = getBilling(event.address)
-  const existingCollectorIndex = billing.collectors.indexOf(event.params.collector)
-  if (existingCollectorIndex > -1) {
-    if (!event.params.enabled) {
-      billing.collectors.splice(existingCollectorIndex, 1)
-    }
-  } else if (event.params.enabled) {
-    billing.collectors.push(event.params.collector)
+  let collector = Collector.load(event.params.collector.toHexString())
+  if (collector == null && event.params.enabled) {
+    collector = new Collector(event.params.collector.toHexString())
+    collector.billing = '1'
+    collector.save()
+  } else if (collector != null && !event.params.enabled) {
+    store.remove('Collector', collector.id)
   }
-
+  let billing = getBilling(event.address)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
   billing.save()
 }

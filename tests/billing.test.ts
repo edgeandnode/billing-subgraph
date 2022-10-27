@@ -1,36 +1,57 @@
 import { clearStore, test, assert, newMockEvent } from 'matchstick-as/assembly/index'
 import {
-  handleGatewayUpdated,
+  handleCollectorUpdated,
   handleNewOwnership,
   handleTokensAdded,
   handleTokensRemoved,
+  handleInsufficientBalanceForRemoval,
   handleTokensPulled,
 } from '../src/mappings/billing'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { BigInt, ethereum } from '@graphprotocol/graph-ts'
 import {
   createAddedEvent,
   createRemovedEvent,
   createPulledEvent,
+  createInsufficientBalanceEvent,
   createEmptyBilling,
-  createGatewayUpdated,
+  createCollectorUpdated,
   createNewOwnership,
 } from './billing-scaffolding'
+import { Billing } from '../src/types/schema'
 
+function stringToValue(str: String): ethereum.Value {
+  return ethereum.Value.fromString(str)
+}
+
+function assertEqualCollectorArrays(actualArray: Array<String>, expectedArray: Array<String>): void {
+  assert.arrayEquals(actualArray.sort().map<ethereum.Value>((collector: String, _: i32, __: Array<String>) => {
+    return stringToValue(collector)
+  }), expectedArray.sort().map<ethereum.Value>((collector: String, _: i32, __: Array<String>) => {
+    return stringToValue(collector)
+  }))
+}
 /*
  * GatewayUpdated
  */
-test('Gateway update', () => {
+test('Collector update', () => {
   let billing = createEmptyBilling()
-  let oldGatewayAddressString = billing.gateway.toHexString()
-  let newGatewayAddressString = '0x0101010101010101010101010101010101010101'
-  let gatewayUpdatedEvent = createGatewayUpdated(newGatewayAddressString)
+  let oldCollectorAddressString = '0x1111111111111111111111111111111111111112'
+  
+  assertEqualCollectorArrays(billing.collectors, [oldCollectorAddressString])
 
-  assert.fieldEquals('Billing', '1', 'gateway', oldGatewayAddressString)
+  let newCollectorAddressString = '0x0101010101010101010101010101010101010101'
+  let collectorUpdatedEvent = createCollectorUpdated(newCollectorAddressString, true)
 
-  handleGatewayUpdated(gatewayUpdatedEvent)
+  handleCollectorUpdated(collectorUpdatedEvent)
 
-  assert.fieldEquals('Billing', '1', 'gateway', newGatewayAddressString)
+  billing = Billing.load('1')!
+  assertEqualCollectorArrays(billing.collectors, [oldCollectorAddressString, newCollectorAddressString])
+  collectorUpdatedEvent = createCollectorUpdated(oldCollectorAddressString, false)
 
+  handleCollectorUpdated(collectorUpdatedEvent)
+
+  billing = Billing.load('1')!
+  assertEqualCollectorArrays(billing.collectors, [newCollectorAddressString])
   clearStore()
 })
 
@@ -170,6 +191,33 @@ test('Fully remove tokens', () => {
 
   assert.fieldEquals('User', userAddress, 'totalTokensRemoved', grtAmountString)
   assert.fieldEquals('Billing', '1', 'totalTokensRemoved', grtAmountString)
+
+  clearStore()
+})
+
+/*
+ * InsufficientBalanceForRemoval
+ * These events don't affect a user's balance/transactions,
+ * but we surface them so that they can eventually be made visible in the UI
+ */
+test('Reporting insufficient balance for removal', () => {
+  createEmptyBilling()
+  let userAddress = '0x0101010101010101010101010101010101010101'
+  let toAddress = '0x0101010101010101010101010101010101010102'
+  let grtAmountString = '10000000000000000000'
+  let grtAmount = BigInt.fromString(grtAmountString)
+
+  let insufficientBalanceEvent = createInsufficientBalanceEvent(userAddress, toAddress, grtAmount)
+
+  handleInsufficientBalanceForRemoval(insufficientBalanceEvent)
+
+  let id = insufficientBalanceEvent.transaction.hash.toHexString().concat(insufficientBalanceEvent.transactionLogIndex.toString())
+  assert.fieldEquals('InsufficientBalanceForRemoval', id, 'user', userAddress)
+  assert.fieldEquals('InsufficientBalanceForRemoval', id, 'to', toAddress)
+  assert.fieldEquals('InsufficientBalanceForRemoval', id, 'amount', grtAmountString)
+  assert.fieldEquals('InsufficientBalanceForRemoval', id, 'hash', insufficientBalanceEvent.transaction.hash.toHexString())
+  assert.fieldEquals('InsufficientBalanceForRemoval', id, 'blockNumber', insufficientBalanceEvent.block.number.toString())
+  assert.fieldEquals('InsufficientBalanceForRemoval', id, 'timestamp', insufficientBalanceEvent.block.timestamp.toString())
 
   clearStore()
 })
