@@ -159,8 +159,6 @@ type BillingDailyData @entity {
   totalTokensRemoved: BigInt!
   "[CURRENT] Total amount of currently available balance (totalTokensAdded - totalTokensPulled - totalTokensRemoved)"
   totalCurrentBalance: BigInt!
-  "Address of the collectors"
-  collectors: [Collector!]!
   "Address of the governor"
   governor: Bytes!
   "[DELTA] Chage in total tokens added since the last DailyData point"
