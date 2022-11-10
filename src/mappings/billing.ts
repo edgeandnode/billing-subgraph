@@ -1,4 +1,10 @@
-import { TokensAdded, TokensRemoved, TokensPulled, InsufficientBalanceForRemoval, Collector } from '../types/schema'
+import {
+  TokensAdded,
+  TokensRemoved,
+  TokensPulled,
+  InsufficientBalanceForRemoval,
+  Collector,
+} from '../types/schema'
 import { store } from '@graphprotocol/graph-ts'
 import {
   TokensAdded as AddedEvent,
@@ -114,8 +120,9 @@ export function handleTokensRemoved(event: RemovedEvent): void {
  * This doesn't affect a user's transactions but we surface it
  * in case it becomes useful to show it in the UI.
  */
- export function handleInsufficientBalanceForRemoval(event: InsufficientBalanceForRemovalEvent): void {
-
+export function handleInsufficientBalanceForRemoval(
+  event: InsufficientBalanceForRemovalEvent,
+): void {
   let ev = new InsufficientBalanceForRemoval(
     event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
   )
