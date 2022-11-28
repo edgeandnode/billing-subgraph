@@ -46,12 +46,19 @@ test('Collector update', () => {
 
   billing = Billing.load('1')!
   assertEqualCollectorArrays(billing.collectors, [oldCollectorAddressString, newCollectorAddressString])
+
+  assert.fieldEquals('Collector', oldCollectorAddressString, 'enabled', 'true')
+  assert.fieldEquals('Collector', newCollectorAddressString, 'enabled', 'true')
+
   collectorUpdatedEvent = createCollectorUpdated(oldCollectorAddressString, false)
 
   handleCollectorUpdated(collectorUpdatedEvent)
 
   billing = Billing.load('1')!
-  assertEqualCollectorArrays(billing.collectors, [newCollectorAddressString])
+  assertEqualCollectorArrays(billing.collectors, [oldCollectorAddressString, newCollectorAddressString])
+
+  assert.fieldEquals('Collector', oldCollectorAddressString, 'enabled', 'false')
+  assert.fieldEquals('Collector', newCollectorAddressString, 'enabled', 'true')
   clearStore()
 })
 

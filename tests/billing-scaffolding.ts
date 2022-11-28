@@ -199,6 +199,7 @@ export function createEmptyBilling(): Billing {
 
   let collector = new Collector('0x1111111111111111111111111111111111111112')
   collector.billing = billing.id
+  collector.enabled = true
   collector.save()
 
   return Billing.load('1')!

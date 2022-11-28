@@ -28,13 +28,12 @@ import {
  */
 export function handleCollectorUpdated(event: CollectorUpdated): void {
   let collector = Collector.load(event.params.collector.toHexString())
-  if (collector == null && event.params.enabled) {
+  if (collector == null) {
     collector = new Collector(event.params.collector.toHexString())
     collector.billing = DEFAULT_BILLING_ID
-    collector.save()
-  } else if (collector != null && !event.params.enabled) {
-    store.remove('Collector', collector.id)
   }
+  collector.enabled = event.params.enabled
+  collector.save()
   const billing = getBilling(event.address)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
   billing.save()

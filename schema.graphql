@@ -55,6 +55,7 @@ type Collector @entity {
   id: ID!
   "Billing contract"
   billing: Billing!
+  enabled: Boolean!
 }
 
 """
