@@ -1,28 +1,41 @@
-import { Billing, User, TokensAdded, TokensRemoved, TokensPulled } from '../types/schema'
+import {
+  TokensAdded,
+  TokensRemoved,
+  TokensPulled,
+  InsufficientBalanceForRemoval,
+  Collector,
+} from '../types/schema'
+import { store } from '@graphprotocol/graph-ts'
 import {
   TokensAdded as AddedEvent,
   TokensRemoved as RemovedEvent,
   TokensPulled as PulledEvent,
-  GatewayUpdated,
+  InsufficientBalanceForRemoval as InsufficientBalanceForRemovalEvent,
+  CollectorUpdated,
   NewOwnership,
 } from '../types/Billing/Billing'
-import { BigInt, Address } from '@graphprotocol/graph-ts'
+
 import {
   getBilling,
   createOrLoadUser,
   getAndUpdateBillingDailyData,
   getAndUpdateUserDailyData,
+  DEFAULT_BILLING_ID,
 } from './helpers'
 
 /**
- * @dev handleEpochRun - Sets the gateway on the Billing Entity. Creates entity on first try
+ * @dev handleEpochRun - Sets the gateways ("collectors") on the Billing Entity. Creates entity on first try
  */
-export function handleGatewayUpdated(event: GatewayUpdated): void {
-  let billing = getBilling(event.address)
-  billing.gateway = event.params.newGateway
-
+export function handleCollectorUpdated(event: CollectorUpdated): void {
+  let collector = Collector.load(event.params.collector.toHexString())
+  if (collector == null) {
+    collector = new Collector(event.params.collector.toHexString())
+    collector.billing = DEFAULT_BILLING_ID
+  }
+  collector.enabled = event.params.enabled
+  collector.save()
+  const billing = getBilling(event.address)
   getAndUpdateBillingDailyData(billing, event.block.timestamp)
-
   billing.save()
 }
 
@@ -74,7 +87,7 @@ export function handleTokensAdded(event: AddedEvent): void {
  */
 export function handleTokensRemoved(event: RemovedEvent): void {
   let billing = getBilling(event.address)
-  let user = createOrLoadUser(event.params.user)
+  let user = createOrLoadUser(event.params.from)
 
   user.billingBalance = user.billingBalance.minus(event.params.amount)
   user.totalTokensRemoved = user.totalTokensRemoved.plus(event.params.amount)
@@ -94,11 +107,31 @@ export function handleTokensRemoved(event: RemovedEvent): void {
   tx.hash = event.transaction.hash
   tx.blockNumber = event.block.number.toI32()
   tx.timestamp = event.block.timestamp.toI32()
-  tx.user = event.params.user.toHexString()
+  tx.user = event.params.from.toHexString()
   tx.amount = event.params.amount
   tx.type = 'TokensRemoved'
   tx.to = event.params.to
   tx.save()
+}
+
+/**
+ * @dev Handle the Insufficient Balance for Removal event
+ * This doesn't affect a user's transactions but we surface it
+ * in case it becomes useful to show it in the UI.
+ */
+export function handleInsufficientBalanceForRemoval(
+  event: InsufficientBalanceForRemovalEvent,
+): void {
+  let ev = new InsufficientBalanceForRemoval(
+    event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
+  )
+  ev.hash = event.transaction.hash
+  ev.blockNumber = event.block.number.toI32()
+  ev.timestamp = event.block.timestamp.toI32()
+  ev.user = event.params.from.toHexString()
+  ev.amount = event.params.amount
+  ev.to = event.params.to
+  ev.save()
 }
 
 /**
