@@ -1,8 +1,10 @@
-specVersion: 0.0.2
+specVersion: 1.0.0
 description: The Gateway Billing Subgraph
 repository: https://github.com/edgeandnode/billing-subgraph
 schema:
   file: ./schema.graphql
+indexerHints:
+  prune: auto
 dataSources:
   - kind: ethereum/contract
     name: Billing

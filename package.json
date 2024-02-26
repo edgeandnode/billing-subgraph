@@ -18,14 +18,15 @@
     "deploy-testnet": "yarn && yarn prepare:testnet && graph deploy davekaj/billing --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-mainnet": "yarn && yarn prepare:mainnet && graph deploy graphprotocol/billing --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-test": "yarn && yarn prepare:mainnet && graph deploy <SUBGRAPH_NAME> --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-studio": "yarn && yarn prepare:mainnet && graph deploy --studio graph-billing-arbitrum",
     "lint": "yarn eslint .",
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
     "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.29.0",
-    "@graphprotocol/graph-ts": "^0.26.0",
+    "@graphprotocol/graph-cli": "0.68.0",
+    "@graphprotocol/graph-ts": "0.32.0",
     "@types/node": "16.4.7",
     "@typescript-eslint/eslint-plugin": "4.28.5",
     "@typescript-eslint/parser": "4.28.5",
