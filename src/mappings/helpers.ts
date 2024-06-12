@@ -14,6 +14,10 @@ export function getBilling(eventAddress: Address): Billing {
     billing = new Billing(DEFAULT_BILLING_ID)
     let contract = BillingContract.bind(eventAddress)
     billing.governor = contract.governor()
+    billing.totalTokensAdded = BigInt.fromI32(0)
+    billing.totalTokensPulled = BigInt.fromI32(0)
+    billing.totalTokensRemoved = BigInt.fromI32(0)
+    billing.totalCurrentBalance = BigInt.fromI32(0)
     billing.save()
   }
 
@@ -28,6 +32,11 @@ export function createOrLoadUser(userAddress: Address): User {
   let user = User.load(id)
   if (user == null) {
     user = new User(id)
+    user.billingBalance = BigInt.fromI32(0)
+    user.totalTokensAdded = BigInt.fromI32(0)
+    user.totalTokensPulled = BigInt.fromI32(0)
+    user.totalTokensRemoved = BigInt.fromI32(0)
+    user.polygonGRTBalance = BigInt.fromI32(0)
   }
   return user as User
 }
