@@ -27,9 +27,9 @@ import {
  * @dev handleEpochRun - Sets the gateways ("collectors") on the Billing Entity. Creates entity on first try
  */
 export function handleCollectorUpdated(event: CollectorUpdated): void {
-  let collector = Collector.load(event.params.collector.toHexString())
+  let collector = Collector.load(event.params.collector)
   if (collector == null) {
-    collector = new Collector(event.params.collector.toHexString())
+    collector = new Collector(event.params.collector)
     collector.billing = DEFAULT_BILLING_ID
   }
   collector.enabled = event.params.enabled
@@ -71,12 +71,12 @@ export function handleTokensAdded(event: AddedEvent): void {
   billing.save()
 
   let tx = new TokensAdded(
-    event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
+    event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   tx.hash = event.transaction.hash
   tx.blockNumber = event.block.number.toI32()
   tx.timestamp = event.block.timestamp.toI32()
-  tx.user = event.params.user.toHexString()
+  tx.user = event.params.user
   tx.amount = event.params.amount
   tx.type = 'TokensAdded'
   tx.save()
@@ -102,12 +102,12 @@ export function handleTokensRemoved(event: RemovedEvent): void {
   billing.save()
 
   let tx = new TokensRemoved(
-    event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
+    event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   tx.hash = event.transaction.hash
   tx.blockNumber = event.block.number.toI32()
   tx.timestamp = event.block.timestamp.toI32()
-  tx.user = event.params.from.toHexString()
+  tx.user = event.params.from
   tx.amount = event.params.amount
   tx.type = 'TokensRemoved'
   tx.to = event.params.to
@@ -123,12 +123,12 @@ export function handleInsufficientBalanceForRemoval(
   event: InsufficientBalanceForRemovalEvent,
 ): void {
   let ev = new InsufficientBalanceForRemoval(
-    event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
+    event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   ev.hash = event.transaction.hash
   ev.blockNumber = event.block.number.toI32()
   ev.timestamp = event.block.timestamp.toI32()
-  ev.user = event.params.from.toHexString()
+  ev.user = event.params.from
   ev.amount = event.params.amount
   ev.to = event.params.to
   ev.save()
@@ -154,12 +154,12 @@ export function handleTokensPulled(event: PulledEvent): void {
   billing.save()
 
   let tx = new TokensPulled(
-    event.transaction.hash.toHexString().concat(event.transactionLogIndex.toString()),
+    event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   tx.hash = event.transaction.hash
   tx.blockNumber = event.block.number.toI32()
   tx.timestamp = event.block.timestamp.toI32()
-  tx.user = event.params.user.toHexString()
+  tx.user = event.params.user
   tx.amount = event.params.amount
   tx.type = 'TokensPulled'
   tx.save()
