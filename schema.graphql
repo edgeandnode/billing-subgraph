@@ -3,7 +3,7 @@ Billing holds global variables
 """
 type Billing @entity {
   "Set to 1"
-  id: ID!
+  id: Bytes!
   "Address of the collectors"
   collectors: [Collector!]! @derivedFrom(field: "billing")
   "Address of the governor"
@@ -27,7 +27,7 @@ Curator Name Signal for a single Subgraph
 """
 type User @entity {
   "EVM address"
-  id: ID!
+  id: Bytes!
   "Balance of the user in the Billing contract"
   billingBalance: BigInt!
   "[CUMULATIVE] Total amount of tokens added"
@@ -52,7 +52,7 @@ A collector authorized to pull tokens
 """
 type Collector @entity {
   "EVM address"
-  id: ID!
+  id: Bytes!
   "Billing contract"
   billing: Billing!
   enabled: Boolean!
@@ -63,7 +63,7 @@ A generic transaction
 """
 interface Transaction {
   "Transaction hash concatenated with event log index"
-  id: ID!
+  id: Bytes!
   "Transaction hash"
   hash: Bytes!
   "Block number for the transaction"
@@ -82,7 +82,7 @@ interface Transaction {
 TokensAdded Transaction
 """
 type TokensAdded implements Transaction @entity {
-  id: ID!
+  id: Bytes!
   hash: Bytes!
   blockNumber: Int!
   timestamp: Int!
@@ -95,7 +95,7 @@ type TokensAdded implements Transaction @entity {
 TokensRemoved Transaction
 """
 type TokensRemoved implements Transaction @entity {
-  id: ID!
+  id: Bytes!
   hash: Bytes!
   blockNumber: Int!
   timestamp: Int!
@@ -110,7 +110,7 @@ type TokensRemoved implements Transaction @entity {
 TokensPulled Transaction. Where a collector pulls tokens from the user
 """
 type TokensPulled implements Transaction @entity {
-  id: ID!
+  id: Bytes!
   hash: Bytes!
   blockNumber: Int!
   timestamp: Int!
@@ -129,7 +129,7 @@ enum TransactionType {
 InsufficientBalanceForRemoval event, where a user tried to remove funds from L1 but the balance was insufficient
 """
 type InsufficientBalanceForRemoval @entity {
-  id: ID!
+  id: Bytes!
   hash: Bytes!
   blockNumber: Int!
   timestamp: Int!
@@ -143,7 +143,7 @@ type InsufficientBalanceForRemoval @entity {
 
 type BillingDailyData @entity {
   "<SUBGRAPH ID>-<DAY NUMBER>"
-  id: ID!
+  id: Bytes!
   "Timestamp for the start of the day that this entity represents. UTC+0"
   dayStart: BigInt!
   "Timestamp for the end of the day that this entity represents. UTC+0"
@@ -174,7 +174,7 @@ type BillingDailyData @entity {
 
 type UserDailyData @entity {
   "<SUBGRAPH ID>-<DAY NUMBER>"
-  id: ID!
+  id: Bytes!
   "Timestamp for the start of the day that this entity represents. UTC+0"
   dayStart: BigInt!
   "Timestamp for the end of the day that this entity represents. UTC+0"

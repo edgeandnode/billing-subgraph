@@ -1,10 +1,10 @@
 import { Billing as BillingContract } from '../types/Billing/Billing'
 import { Billing, User, BillingDailyData, UserDailyData } from '../types/schema'
-import { BigInt, Address } from '@graphprotocol/graph-ts'
+import { BigInt, Address, Bytes } from '@graphprotocol/graph-ts'
 
 export const LAUNCH_DAY = 18613 // 1608163200 / 86400. 1608163200 = 17 Dec 2020 00:00:00 GMT
 export const SECONDS_PER_DAY = 86400
-export const DEFAULT_BILLING_ID = '1'
+export const DEFAULT_BILLING_ID = Bytes.fromI32(1)
 /**
  * @dev Helper function to load Billing
  */
@@ -28,7 +28,7 @@ export function getBilling(eventAddress: Address): Billing {
  * @dev Helper function to load or create a User
  */
 export function createOrLoadUser(userAddress: Address): User {
-  let id = userAddress.toHexString()
+  let id = userAddress
   let user = User.load(id)
   if (user == null) {
     user = new User(id)
@@ -43,18 +43,18 @@ export function createOrLoadUser(userAddress: Address): User {
 
 export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt): BillingDailyData {
   let dayNumber = timestamp.toI32() / SECONDS_PER_DAY - LAUNCH_DAY
-  let id = compoundId(entity.id, BigInt.fromI32(dayNumber).toString())
+  let id = compoundId(entity.id, Bytes.fromI32(dayNumber))
   let dailyData = BillingDailyData.load(id)
 
-  if (dailyData == null) {
+  if (dailyData === null) {
     dailyData = new BillingDailyData(id)
 
     dailyData.dayStart = BigInt.fromI32((timestamp.toI32() / SECONDS_PER_DAY) * SECONDS_PER_DAY)
-    dailyData.dayEnd = dailyData.dayStart + BigInt.fromI32(SECONDS_PER_DAY)
+    dailyData.dayEnd = dailyData.dayStart.plus(BigInt.fromI32(SECONDS_PER_DAY))
     dailyData.dayNumber = dayNumber
     dailyData.entity = entity.id
 
-    if (entity.currentDailyDataEntity != null) {
+    if (entity.currentDailyDataEntity !== null) {
       entity.previousDailyDataEntity = entity.currentDailyDataEntity
     }
     entity.currentDailyDataEntity = dailyData.id
@@ -66,7 +66,7 @@ export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt)
   dailyData.totalCurrentBalance = entity.totalCurrentBalance
   dailyData.governor = entity.governor
 
-  if (entity.previousDailyDataEntity != null) {
+  if (entity.previousDailyDataEntity !== null) {
     let previousDailyDataPoint = BillingDailyData.load(entity.previousDailyDataEntity!)!
 
     dailyData.totalTokensAddedDelta = entity.totalTokensAdded.minus(
@@ -90,23 +90,23 @@ export function getAndUpdateBillingDailyData(entity: Billing, timestamp: BigInt)
 
   dailyData.save()
 
-  return dailyData as BillingDailyData
+  return dailyData
 }
 
 export function getAndUpdateUserDailyData(entity: User, timestamp: BigInt): UserDailyData {
-  let dayNumber = timestamp.toI32() / SECONDS_PER_DAY - LAUNCH_DAY
-  let id = compoundId(entity.id, BigInt.fromI32(dayNumber).toString())
+  let dayNumber = (timestamp.toI32() / SECONDS_PER_DAY) - LAUNCH_DAY
+  let id = compoundId(entity.id, Bytes.fromI32(dayNumber))
   let dailyData = UserDailyData.load(id)
 
-  if (dailyData == null) {
+  if (dailyData === null) {
     dailyData = new UserDailyData(id)
 
     dailyData.dayStart = BigInt.fromI32((timestamp.toI32() / SECONDS_PER_DAY) * SECONDS_PER_DAY)
-    dailyData.dayEnd = dailyData.dayStart + BigInt.fromI32(SECONDS_PER_DAY)
+    dailyData.dayEnd = dailyData.dayStart.plus(BigInt.fromI32(SECONDS_PER_DAY))
     dailyData.dayNumber = dayNumber
     dailyData.entity = entity.id
 
-    if (entity.currentDailyDataEntity != null) {
+    if (entity.currentDailyDataEntity !== null) {
       entity.previousDailyDataEntity = entity.currentDailyDataEntity
     }
     entity.currentDailyDataEntity = dailyData.id
@@ -117,7 +117,7 @@ export function getAndUpdateUserDailyData(entity: User, timestamp: BigInt): User
   dailyData.totalTokensRemoved = entity.totalTokensRemoved
   dailyData.billingBalance = entity.billingBalance
 
-  if (entity.previousDailyDataEntity != null) {
+  if (entity.previousDailyDataEntity !== null) {
     let previousDailyDataPoint = UserDailyData.load(entity.previousDailyDataEntity!)!
 
     dailyData.totalTokensAddedDelta = entity.totalTokensAdded.minus(
@@ -141,9 +141,9 @@ export function getAndUpdateUserDailyData(entity: User, timestamp: BigInt): User
 
   dailyData.save()
 
-  return dailyData as UserDailyData
+  return dailyData
 }
 
-export function compoundId(idA: string, idB: string): string {
-  return idA.concat('-').concat(idB)
+export function compoundId(idA: Bytes, idB: Bytes): Bytes {
+  return idA.concat(idB)
 }
